@@ -9,7 +9,6 @@ export default function Home() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Always redirect to login if no token
     const token = localStorage.getItem('mailchat_token');
     const email = localStorage.getItem('mailchat_user_email');
 
@@ -19,16 +18,14 @@ export default function Home() {
         nome: email.split('@')[0],
         token
       });
-      setReady(true);
-    } else {
-      // Redirect to login
-      setReady(true);
     }
+    
+    setReady(true);
   }, [setContaConectada]);
 
   if (!ready) return null;
 
-  // Check auth again before showing app
+  // Check auth
   const token = localStorage.getItem('mailchat_token');
   const email = localStorage.getItem('mailchat_user_email');
 
