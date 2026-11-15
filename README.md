@@ -178,3 +178,55 @@ Internal project - EX Technologies
 
 ---
 *Last updated: 2026-11-15*
+
+---
+
+## 🎯 Seu Projeto Google Cloud
+
+**Project Number:** 624831787712  
+**Project ID:** canvas-replica-404602  
+**Console:** https://console.cloud.google.com/welcome?pli=1&project=canvas-replica-404602
+
+### Próximos passos com este projeto:
+
+1. **Acesse o projeto:** [console.cloud.google.com](https://console.cloud.google.com/welcome?pli=1&project=canvas-replica-404602)
+
+2. **Habilitar APIs:**
+   - Gmail API
+   - Google Cloud Identity Platform
+
+3. **Criar credenciais OAuth2:**
+   - APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID
+   - Application type: Web application
+   - Authorized JavaScript origins:
+     ```
+     http://localhost:3100
+     https://mailchat.app
+     ```
+   - Authorized redirect URIs:
+     ```
+     http://localhost:3100/auth/callback
+     https://mailchat.app/auth/callback
+     ```
+
+4. **Configurar OAuth Consent Screen:**
+   - Application name: MailChat
+   - User support email: seu@email.com
+   - Developer contact email: seu@email.com
+
+5. **Atualizar .env:**
+   ```env
+   GOOGLE_CLIENT_ID=seu_client_id.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=seu_client_secret
+   GOOGLE_REDIRECT_URI=https://mailchat.app/auth/callback
+   ```
+
+6. **Verificar domínio (CASA requirements):**
+   - APIs & Services → OAuth consent screen → Authorized domains
+   - Adicionar: `mailchat.app`
+
+7. **Deploy com certificado TLS:**
+   ```bash
+   sudo certbot --nginx -d mailchat.app -d www.mailchat.app
+   ```
+
