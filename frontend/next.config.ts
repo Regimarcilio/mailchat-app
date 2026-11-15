@@ -1,10 +1,11 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000/api',
+  experimental: {
+    // Enable server actions if needed
   },
-};
-
-export default nextConfig;
+  env: {
+    NEXT_PUBLIC_BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8787',
+  },
+  // Remove strict port requirements
+}
