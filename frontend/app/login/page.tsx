@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMailChatStore } from '@/store/useMailChatStore';
 
 export default function LoginPage() {
+  const router = useRouter();
   const setContaConectada = useMailChatStore((s) => s.setContaConectada);
   const [email, setEmail] = useState('');
 
@@ -22,12 +24,13 @@ export default function LoginPage() {
     localStorage.setItem('mailchat_token', token);
     localStorage.setItem('mailchat_user_email', email);
     
-    window.location.href = '/';
+    // Use router for Next.js navigation
+    router.push('/');
   };
 
   const handleRandomEmail = () => {
-    const random = Math.random().toString(36).substring(2, 8);
-    setEmail(`user${random}@mail.com`);
+    const random = Math.random().toString(36).substr(2, 6);
+    setEmail('user' + random + '@mail.com');
   };
 
   return (
@@ -46,14 +49,14 @@ export default function LoginPage() {
         padding: '40px',
         maxWidth: '360px',
         width: '100%',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+        textAlign: 'center'
       }}>
         <h1 style={{
           fontSize: '24px',
           fontWeight: '600',
-          textAlign: 'center',
-          marginBottom: '32px',
-          color: '#1f2937'
+          color: '#1f2937',
+          marginBottom: '32px'
         }}>
           MailChat
         </h1>
@@ -70,8 +73,8 @@ export default function LoginPage() {
               fontSize: '16px',
               border: '1px solid #d1d5db',
               borderRadius: '6px',
-              marginBottom: '16px',
-              outline: 'none'
+              outline: 'none',
+              marginBottom: '16px'
             }}
             required
           />
