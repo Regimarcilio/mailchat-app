@@ -17,11 +17,12 @@ interface MailChatStore {
   usuario: Usuario | null;
   setContaConectada: (usuario: Usuario) => void;
   desconectar: () => void;
-  // Add required fields to prevent undefined errors
   contatoSelecionadoId: number | null;
   selecionarContato: (id: number | null) => void;
   agendaAberta: boolean;
   alternarAgenda: () => void;
+  diaSelecionado: string;
+  selecionarDia: (dia: string) => void;
 }
 
 export const useMailChatStore = create<MailChatStore>()((set) => ({
@@ -48,4 +49,6 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
   selecionarContato: (id: number | null) => set({ contatoSelecionadoId: id }),
   agendaAberta: true,
   alternarAgenda: () => set((s) => ({ agendaAberta: !s.agendaAberta })),
+  diaSelecionado: '2026-11-13',
+  selecionarDia: (dia: string) => set({ diaSelecionado: dia }),
 }));
