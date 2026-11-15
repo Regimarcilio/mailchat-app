@@ -8,40 +8,21 @@ interface Usuario {
   token: string;
 }
 
-interface ToastMsg {
-  id: number;
-  texto: string;
-  tipo: 'info' | 'success' | 'error' | 'warning';
-}
-
 interface MailChatStore {
   tema: string;
   setTema: (tema: string) => void;
   configuracoesAbertas: boolean;
   abrirConfiguracoes: () => void;
   fecharConfiguracoes: () => void;
-  postitModalAberto: boolean;
-  postitEmailPreset: number | null;
-  abrirPostit: (emailId: number | null) => void;
-  fecharPostit: () => void;
+  usuario: Usuario | null;
+  setContaConectada: (usuario: Usuario) => void;
+  desconectar: () => void;
+  // Add required fields to prevent undefined errors
   contatoSelecionadoId: number | null;
   selecionarContato: (id: number | null) => void;
   agendaAberta: boolean;
   alternarAgenda: () => void;
-  diaSelecionado: string;
-  selecionarDia: (dia: string) => void;
-  chatMobileAberto: boolean;
-  abrirChatMobile: () => void;
-  fecharChatMobile: () => void;
-  toasts: ToastMsg[];
-  notificar: (texto: string) => void;
-  dismissToast: (id: number) => void;
-  usuario: Usuario | null;
-  setContaConectada: (usuario: Usuario) => void;
-  desconectar: () => void;
 }
-
-let toastSeq = 1;
 
 export const useMailChatStore = create<MailChatStore>()((set) => ({
   tema: 'whatsapp',
@@ -54,38 +35,6 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
   configuracoesAbertas: false,
   abrirConfiguracoes: () => set({ configuracoesAbertas: true }),
   fecharConfiguracoes: () => set({ configuracoesAbertas: false }),
-  postitModalAberto: false,
-  postitEmailPreset: null,
-  abrirPostit: (emailId: number | null) => set({ postitModalAberto: true, postitEmailPreset: emailId }),
-  fecharPostit: () => set({ postitModalAberto: false, postitEmailPreset: null }),
-  contatoSelecionadoId: 1,
-  selecionarContato: (id: number | null) => set({ contatoSelecionadoId: id }),
-  agendaAberta: true,
-  alternarAgenda: () => set((s) => ({ agendaAberta: !s.agendaAberta })),
-  diaSelecionado: '2026-11-13',
-  selecionarDia: (dia: string) => set({ diaSelecionado: dia }),
-  chatMobileAberto: false,
-  abrirChatMobile: () => set({ chatMobileAberto: true }),
-  fecharChatMobile: () => set({ chatMobileAberto: false }),
-  toasts: [],
-  notificar: (texto: string) => {
-    const id = toastSeq++;
-    set((s) => ({
-      toasts: [...s.toasts, { id, texto, tipo: 'info' as const }],
-    }));
-    setTimeout(() => {
-      set((s) => {
-        const filtered = s.toasts.filter((t) => t.id !== id);
-        return { toasts: filtered };
-      });
-    }, 5000);
-  },
-  dismissToast: (id: number) => {
-    set((s) => {
-      const filtered = s.toasts.filter((t) => t.id !== id);
-      return { toasts: filtered };
-    });
-  },
   usuario: null,
   setContaConectada: (usuario: Usuario) => set({ usuario }),
   desconectar: () => {
@@ -95,4 +44,8 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
     }
     set({ usuario: null });
   },
+  contatoSelecionadoId: 1,
+  selecionarContato: (id: number | null) => set({ contatoSelecionadoId: id }),
+  agendaAberta: true,
+  alternarAgenda: () => set((s) => ({ agendaAberta: !s.agendaAberta })),
 }));
