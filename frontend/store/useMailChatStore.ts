@@ -4,6 +4,12 @@ import { create } from 'zustand';
 import { MOCK_CONFIGURACAO } from '@/lib/mock/data';
 import type { EmailConfiguracao, TemaId, ToastMsg } from '@/lib/types';
 
+interface Usuario {
+  email: string;
+  nome: string;
+  token: string;
+}
+
 interface MailChatStore {
   tema: TemaId;
   setTema: (tema: TemaId) => void;
@@ -28,6 +34,11 @@ interface MailChatStore {
   toasts: ToastMsg[];
   notificar: (texto: string) => void;
   dismissToast: (id: number) => void;
+  
+  // Authentication fields
+  usuario: Usuario | null;
+  setContaConectada: (usuario: Usuario) => void;
+  desconectar: () => void;
 }
 
 let toastSeq = 1;
@@ -60,12 +71,24 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
   fecharChatMobile: () => set({ chatMobileAberto: false }),
   toasts: [],
   notificar: (texto) => {
-    const id = toastSeq;
-    toastSeq += 1;
-    set((s) => ({ toasts: [...s.toasts, { id, texto }] }));
+    const id = toastSeq++;
+    set((s) => ({
+      toasts: [...s.toasts, { id, texto, tipo: 'info' }],
+    }));
     setTimeout(() => {
-      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
-    }, 2600);
+      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) });
+    }, 5000);
   },
-  dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
-}));
+  dismissToast: (id) => {
+    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) });
+  },
+  
+  // Authentication methods
+  usuario: null,
+  setContaConectada: (usuario) => set({ usuario }),
+  desconectar: () => {
+    localStorage.removeItem('mailchat_token');
+    localStorage.removeItem('mailchat_user_email');
+    set({ usuario: null });
+  },
+})) as const;
