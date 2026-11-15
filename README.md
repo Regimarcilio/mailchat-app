@@ -254,3 +254,69 @@ Clique em **"Entrar como convidado"** e digite qualquer e-mail. Você será dire
 3. Clique em "Continuar com Google"
 4. Conceda permissões e você será redirecionado de volta
 
+
+---
+
+## 🔌 Verificação de Portas (NOVO)
+
+Antes de gerar qualquer link de projeto, use a função de verificação:
+
+### Uso Programático (TypeScript)
+
+```typescript
+import { verifyAndGenerateLinks } from './scripts/port-check';
+
+const result = await verifyAndGenerateLinks(3100, 8788);
+
+if (result.actions.generateLinks) {
+  console.log('✅ Frontend:', result.frontend.recommendedUrl);
+  console.log('✅ API:', result.backend.recommendedUrl);
+} else {
+  console.log('⚠️  Portas em uso:', result.actions.warnings);
+}
+```
+
+### Uso CLI
+
+```bash
+# Verificar portas padrão (3100, 8788)
+npx tsx scripts/agent-port-check.ts
+
+# Portas personalizadas
+FRONTEND_PORT=4000 BACKEND_PORT=5000 npx tsx scripts/agent-port-check.ts
+```
+
+### Script Shell
+
+```bash
+# Verificar e iniciar
+./scripts/verify-and-start.sh
+
+# Portas personalizadas
+FRONTEND_PORT=3100 BACKEND_PORT=8788 ./scripts/verify-and-start.sh
+```
+
+---
+
+## 📋 Agent Protocolo
+
+**Sempre execute antes de gerar links:**
+
+1. `verifyAndGenerateLinks(3100, 8788)`
+2. Se `actions.generateLinks === true` → gere os links
+3. Se `false` → informe ao usuário as portas alternativas
+
+```typescript
+// Exemplo de uso pelo agente
+const portCheck = await verifyAndGenerateLinks(3100, 8788);
+
+if (!portCheck.actions.generateLinks) {
+  // NOTIFY: Portas em uso, não gere links ainda
+  await notifyAgent('Portas não disponíveis', portCheck.actions.warnings);
+  return;
+}
+
+// Agora pode gerar links com segurança
+generateProjectLinks(portCheck.frontend.recommendedUrl, portCheck.backend.recommendedUrl);
+```
+
