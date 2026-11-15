@@ -8,6 +8,8 @@ import type { AppEnv } from './http/types';
 import { createLogger, type Logger } from './logger/logger';
 import { createMetrics } from './metrics/registry';
 import { healthRoutes } from './routes/health';
+import authRoutes from './routes/auth';
+import gmailRoutes from './routes/gmail';
 
 export interface CreateAppOptions {
   config: Env;
@@ -26,6 +28,12 @@ export function createApp(options: CreateAppOptions): Hono<AppEnv> {
   app.use('*', metricsMiddleware(metrics));
 
   app.route('/', healthRoutes);
+
+  // Google OAuth2 routes
+  app.route('/api/auth/google', authRoutes);
+
+  // Gmail API routes
+  app.route('/api/gmail', gmailRoutes);
 
   app.get('/metrics', (c) =>
     c.text(metrics.render(), 200, {
