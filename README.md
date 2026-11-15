@@ -230,3 +230,27 @@ Internal project - EX Technologies
    sudo certbot --nginx -d mailchat.app -d www.mailchat.app
    ```
 
+
+---
+
+## 🔐 Como funciona o login agora
+
+### Fluxo de Login
+
+1. **Acesse:** `http://localhost:3100/`
+2. **Se não estiver logado:** Você verá a tela de login
+3. **Opções:**
+   - **"Continuar com Google"** → Redireciona para OAuth2 (requer configuração Google)
+   - **"Entrar como convidado"** → Simula login para testes rápidos
+
+### Para teste rápido (sem Google):
+
+Clique em **"Entrar como convidado"** e digite qualquer e-mail. Você será direcionado para a interface MailChat!
+
+### Para login real com Google:
+
+1. Configure `.env` com credenciais do Google Cloud
+2. Reinicie o servidor
+3. Clique em "Continuar com Google"
+4. Conceda permissões e você será redirecionado de volta
+
