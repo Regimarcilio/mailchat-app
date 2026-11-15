@@ -1,8 +1,6 @@
 'use client';
 
 import { create } from 'zustand';
-import { MOCK_CONFIGURACAO } from '@/lib/mock/data';
-import type { EmailConfiguracao, TemaId, ToastMsg } from '@/lib/types';
 
 interface Usuario {
   email: string;
@@ -10,11 +8,15 @@ interface Usuario {
   token: string;
 }
 
+interface ToastMsg {
+  id: number;
+  texto: string;
+  tipo: 'info' | 'success' | 'error' | 'warning';
+}
+
 interface MailChatStore {
-  tema: TemaId;
-  setTema: (tema: TemaId) => void;
-  configuracao: EmailConfiguracao;
-  salvarConfiguracao: (configuracao: EmailConfiguracao) => void;
+  tema: string;
+  setTema: (tema: string) => void;
   configuracoesAbertas: boolean;
   abrirConfiguracoes: () => void;
   fecharConfiguracoes: () => void;
@@ -51,8 +53,6 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
       document.documentElement.dataset.theme = tema;
     }
   },
-  configuracao: MOCK_CONFIGURACAO,
-  salvarConfiguracao: (configuracao) => set({ configuracao }),
   configuracoesAbertas: false,
   abrirConfiguracoes: () => set({ configuracoesAbertas: true }),
   fecharConfiguracoes: () => set({ configuracoesAbertas: false }),
@@ -76,19 +76,21 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
       toasts: [...s.toasts, { id, texto, tipo: 'info' }],
     }));
     setTimeout(() => {
-      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) });
+      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
     }, 5000);
   },
   dismissToast: (id) => {
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) });
+    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
   },
   
   // Authentication methods
   usuario: null,
   setContaConectada: (usuario) => set({ usuario }),
   desconectar: () => {
-    localStorage.removeItem('mailchat_token');
-    localStorage.removeItem('mailchat_user_email');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('mailchat_token');
+      localStorage.removeItem('mailchat_user_email');
+    }
     set({ usuario: null });
   },
-})) as const;
+}));
