@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+dist/
+.next/
+.out/
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+build/
+public/
+
+# Cache
+.cache/
+.tmp/

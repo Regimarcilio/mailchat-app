@@ -1,0 +1,11 @@
+{
+  "name": "@mailchat/banner",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MailChat banner components and styles",
+  "main": "index.html",
+  "files": ["index.html", "banner.css", "MailChatBanner.tsx"],
+  "keywords": ["mailchat", "banner", "visual-identity"],
+  "author": "EX Technologies",
+  "license": "ISC"
+}
