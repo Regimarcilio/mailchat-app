@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MailChat } from '@/components/MailChat';
-import { LoginScreen } from '@/components/LoginScreen';
 import { useMailChatStore } from '@/store/useMailChatStore';
 
 export default function Home() {
@@ -12,26 +11,32 @@ export default function Home() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
     const token = localStorage.getItem('mailchat_token');
     const tempEmail = localStorage.getItem('mailchat_temp_email');
 
     if (token) {
-      // Authenticated - show main app
+      // Authenticated - load user
+      const email = localStorage.getItem('mailchat_user_email') || 'guest@mailchat.app';
+      setContaConectada({
+        email,
+        nome: email.split('@')[0],
+        token,
+      });
       setIsCheckingAuth(false);
     } else if (tempEmail) {
-      // Simulate login for development/testing
+      // Guest login simulation
       setContaConectada({
         email: tempEmail,
         nome: tempEmail.split('@')[0],
-        token: 'mock_token_' + Date.now(),
+        token: 'guest_token_' + Date.now(),
       });
-      localStorage.setItem('mailchat_token', 'mock_token_' + Date.now());
+      localStorage.setItem('mailchat_token', 'guest_token_' + Date.now());
+      localStorage.setItem('mailchat_user_email', tempEmail);
       localStorage.removeItem('mailchat_temp_email');
       setIsCheckingAuth(false);
     } else {
-      // Not authenticated - will show login via middleware
-      setIsCheckingAuth(false);
+      // Not authenticated - redirect to login
+      router.replace('/login');
     }
   }, [router, setContaConectada]);
 
@@ -41,14 +46,6 @@ export default function Home() {
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500"></div>
       </div>
     );
-  }
-
-  // Check authentication status from store
-  const contatoSelecionadoId = useMailChatStore((s) => s.contatoSelecionadoId);
-
-  // If no contacts loaded, show login
-  if (!contatoSelecionadoId) {
-    return <LoginScreen onLoginSuccess={() => window.location.href = '/'} />;
   }
 
   return <MailChat />;
