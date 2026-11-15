@@ -1,15 +1,77 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useMailChatStore } from '@/store/useMailChatStore';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+
+interface GmailProfile {
+  emailAddress: string;
+  name: string;
+}
+
+interface GmailLabel {
+  id: string;
+  name: string;
+}
+
+interface GmailMessage {
+  id: string;
+  threadId: string;
+  labelIds?: string[];
+  snippet: string;
+  date?: string;
+  from?: string;
+  subject?: string;
+}
+
+// Fetch Gmail profile
+async function fetchGmailProfile(): Promise<GmailProfile> {
+  const response = await fetch('/api/gmail/profile', { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch profile');
+  return response.json();
+}
+
+// Fetch Gmail labels
+async function fetchGmailLabels(): Promise<GmailLabel[]> {
+  const response = await fetch('/api/gmail/labels', { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch labels');
+  return response.json();
+}
+
+// Fetch recent messages
+async function fetchRecentMessages(): Promise<GmailMessage[]> {
+  const response = await fetch('/api/gmail/messages?maxResults=20', { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch messages');
+  return response.json();
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const setContaConectada = useMailChatStore((s) => s.setContaConectada);
   const [email, setEmail] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // React Query hooks for data fetching
+  const profileQuery = useQuery({
+    queryKey: ['gmail-profile'],
+    queryFn: fetchGmailProfile,
+    enabled: false, // Will be enabled after login
+  });
+
+  const labelsQuery = useQuery({
+    queryKey: ['gmail-labels'],
+    queryFn: fetchGmailLabels,
+    enabled: false,
+  });
+
+  const messagesQuery = useQuery({
+    queryKey: ['gmail-messages'],
+    queryFn: fetchRecentMessages,
+    enabled: false,
+  });
 
   const handleGoogleLogin = async () => {
     setIsLoggingIn(true);
@@ -31,20 +93,79 @@ export default function LoginPage() {
     }
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestLogin = async () => {
     if (!email) {
       toast.error('Digite seu e-mail primeiro');
       return;
     }
 
-    setContaConectada({
-      email,
-      nome: email.split('@')[0],
-      token: 'guest_token_' + Date.now(),
-    });
+    setIsLoggingIn(true);
 
-    localStorage.setItem('mailchat_token', 'guest_token_' + Date.now());
-    router.push('/');
+    try {
+      // Store email and trigger the OAuth2 flow simulation
+      localStorage.setItem('mailchat_temp_email', email);
+      
+      // Fetch profile (will use mock data if not authenticated with Google)
+      let profile: GmailProfile | null = null;
+      let labels: GmailLabel[] = [];
+      let messages: GmailMessage[] = [];
+
+      try {
+        // Try to fetch real Gmail data
+        const profileData = await fetch('/api/gmail/profile', { credentials: 'include' });
+        if (profileData.ok) {
+          profile = await profileData.json();
+        }
+      } catch {}
+
+      try {
+        const labelsData = await fetch('/api/gmail/labels', { credentials: 'include' });
+        if (labelsData.ok) {
+          labels = await labelsData.json();
+        }
+      } catch {}
+
+      try {
+        const messagesData = await fetch('/api/gmail/messages?maxResults=20', { credentials: 'include' });
+        if (messagesData.ok) {
+          messages = await messagesData.json();
+        }
+      } catch {}
+
+      // If no real data, use mock data for guest mode
+      if (!profile) {
+        profile = { emailAddress: email, name: email.split('@')[0] };
+        labels = [
+          { id: 'INBOX', name: 'Recebidos' },
+          { id: 'SENT', name: 'Enviados' },
+          { id: 'DRAFTS', name: 'Rascunhos' },
+          { id: 'TRASH', name: 'Lixeira' },
+          { id: 'SPAM', name: 'Spam' }
+        ];
+        messages = [
+          { id: '1', threadId: '1', snippet: 'Mensagem de boas-vindas', from: 'noreply@mailchat.app', subject: 'Bem-vindo ao MailChat!', date: new Date().toISOString() },
+          { id: '2', threadId: '2', snippet: 'Configure sua conta', from: 'support@mailchat.app', subject: 'Configuração da conta', date: new Date().toISOString() }
+        ];
+      }
+
+      // Set the user data
+      setContaConectada({
+        email: profile.emailAddress,
+        nome: profile.name,
+        token: 'guest_token_' + Date.now(),
+      });
+
+      localStorage.setItem('mailchat_token', 'guest_token_' + Date.now());
+      localStorage.setItem('mailchat_user_email', profile.emailAddress);
+
+      // Store fetched data in the store
+      // Note: In production, this would be done via the store's state management
+
+      router.push('/');
+    } catch (error) {
+      toast.error('Erro ao entrar');
+      setIsLoggingIn(false);
+    }
   };
 
   return (
@@ -78,7 +199,7 @@ export default function LoginPage() {
         >
           {isLoggingIn ? (
             <div className="flex items-center">
-              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500"></div>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Conectando...
             </div>
           ) : (
