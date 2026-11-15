@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MailChat } from '@/components/MailChat';
 import { useMailChatStore } from '@/store/useMailChatStore';
+import { MailChat } from '@/components/MailChat';
 
 export default function Home() {
   const router = useRouter();
@@ -11,45 +11,59 @@ export default function Home() {
   const [isRedirecting, setIsRedirecting] = useState(true);
 
   useEffect(() => {
-    // Always check authentication FIRST
+    // Always check authentication
     const token = localStorage.getItem('mailchat_token');
-    const tempEmail = localStorage.getItem('mailchat_temp_email');
+    const email = localStorage.getItem('mailchat_user_email');
 
-    if (token || tempEmail) {
-      // Authenticated - load user and show app
-      if (tempEmail) {
-        setContaConectada({
-          email: tempEmail,
-          nome: tempEmail.split('@')[0],
-          token: 'guest_token_' + Date.now(),
-        });
-        localStorage.setItem('mailchat_token', 'guest_token_' + Date.now());
-        localStorage.removeItem('mailchat_temp_email');
-      } else {
-        const email = localStorage.getItem('mailchat_user_email') || 'guest@mailchat.app';
-        setContaConectada({
-          email,
-          nome: email.split('@')[0],
-          token,
-        });
-      }
+    if (token && email) {
+      // Authenticated - set user
+      setContaConectada({
+        email,
+        nome: email.split('@')[0],
+        token,
+      });
       setIsRedirecting(false);
     } else {
-      // NOT authenticated - FORCE redirect to login
-      console.log('No token found, redirecting to /login');
+      // Not authenticated - redirect to login
+      console.log('No auth found, redirecting to login');
       router.replace('/login');
     }
   }, [router, setContaConectada]);
 
-  // Show loading while redirecting
   if (isRedirecting) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-100">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500"></div>
+      <div style={{
+        display: 'flex',
+        minHeight: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f3f4f6'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          color: '#6b7280'
+        }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            border: '3px solid #d1d5db',
+            borderTopColor: '#3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          Carregando...
+        </div>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
 
-  // Show the app only when authenticated
+  // Show the app
   return <MailChat />;
 }
