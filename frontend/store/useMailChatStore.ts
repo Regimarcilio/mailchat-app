@@ -36,8 +36,6 @@ interface MailChatStore {
   toasts: ToastMsg[];
   notificar: (texto: string) => void;
   dismissToast: (id: number) => void;
-  
-  // Authentication fields
   usuario: Usuario | null;
   setContaConectada: (usuario: Usuario) => void;
   desconectar: () => void;
@@ -47,7 +45,7 @@ let toastSeq = 1;
 
 export const useMailChatStore = create<MailChatStore>()((set) => ({
   tema: 'whatsapp',
-  setTema: (tema) => {
+  setTema: (tema: string) => {
     set({ tema });
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.theme = tema;
@@ -58,34 +56,38 @@ export const useMailChatStore = create<MailChatStore>()((set) => ({
   fecharConfiguracoes: () => set({ configuracoesAbertas: false }),
   postitModalAberto: false,
   postitEmailPreset: null,
-  abrirPostit: (emailId) => set({ postitModalAberto: true, postitEmailPreset: emailId }),
+  abrirPostit: (emailId: number | null) => set({ postitModalAberto: true, postitEmailPreset: emailId }),
   fecharPostit: () => set({ postitModalAberto: false, postitEmailPreset: null }),
   contatoSelecionadoId: 1,
-  selecionarContato: (id) => set({ contatoSelecionadoId: id }),
+  selecionarContato: (id: number | null) => set({ contatoSelecionadoId: id }),
   agendaAberta: true,
   alternarAgenda: () => set((s) => ({ agendaAberta: !s.agendaAberta })),
   diaSelecionado: '2026-11-13',
-  selecionarDia: (dia) => set({ diaSelecionado: dia }),
+  selecionarDia: (dia: string) => set({ diaSelecionado: dia }),
   chatMobileAberto: false,
   abrirChatMobile: () => set({ chatMobileAberto: true }),
   fecharChatMobile: () => set({ chatMobileAberto: false }),
   toasts: [],
-  notificar: (texto) => {
+  notificar: (texto: string) => {
     const id = toastSeq++;
     set((s) => ({
-      toasts: [...s.toasts, { id, texto, tipo: 'info' }],
+      toasts: [...s.toasts, { id, texto, tipo: 'info' as const }],
     }));
     setTimeout(() => {
-      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
+      set((s) => {
+        const filtered = s.toasts.filter((t) => t.id !== id);
+        return { toasts: filtered };
+      });
     }, 5000);
   },
-  dismissToast: (id) => {
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
+  dismissToast: (id: number) => {
+    set((s) => {
+      const filtered = s.toasts.filter((t) => t.id !== id);
+      return { toasts: filtered };
+    });
   },
-  
-  // Authentication methods
   usuario: null,
-  setContaConectada: (usuario) => set({ usuario }),
+  setContaConectada: (usuario: Usuario) => set({ usuario }),
   desconectar: () => {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('mailchat_token');
