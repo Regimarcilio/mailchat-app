@@ -37,7 +37,7 @@ curl http://localhost:8787/health
 cd ../frontend
 cp .env.example .env.local
 npm install && npm run dev
-# http://localhost:3100
+# http://localhost:3101
 ```
 
 ---
@@ -118,7 +118,7 @@ docker compose up -d --build
 
 # Services:
 # - Backend: http://localhost:8787 (internal only)
-# - Frontend: http://localhost:3100 (Nginx proxy)
+# - Frontend: http://localhost:3101 (Nginx proxy)
 ```
 
 ### Manual Deployment
@@ -200,12 +200,12 @@ Internal project - EX Technologies
    - Application type: Web application
    - Authorized JavaScript origins:
      ```
-     http://localhost:3100
+     http://localhost:3101
      https://mailchat.app
      ```
    - Authorized redirect URIs:
      ```
-     http://localhost:3100/auth/callback
+     http://localhost:3101/auth/callback
      https://mailchat.app/auth/callback
      ```
 
@@ -237,7 +237,7 @@ Internal project - EX Technologies
 
 ### Fluxo de Login
 
-1. **Acesse:** `http://localhost:3100/`
+1. **Acesse:** `http://localhost:3101/`
 2. **Se não estiver logado:** Você verá a tela de login
 3. **Opções:**
    - **"Continuar com Google"** → Redireciona para OAuth2 (requer configuração Google)
@@ -266,7 +266,7 @@ Antes de gerar qualquer link de projeto, use a função de verificação:
 ```typescript
 import { verifyAndGenerateLinks } from './scripts/port-check';
 
-const result = await verifyAndGenerateLinks(3100, 8788);
+const result = await verifyAndGenerateLinks(3101, 8788);
 
 if (result.actions.generateLinks) {
   console.log('✅ Frontend:', result.frontend.recommendedUrl);
@@ -279,7 +279,7 @@ if (result.actions.generateLinks) {
 ### Uso CLI
 
 ```bash
-# Verificar portas padrão (3100, 8788)
+# Verificar portas padrão (3101, 8788)
 npx tsx scripts/agent-port-check.ts
 
 # Portas personalizadas
@@ -293,7 +293,7 @@ FRONTEND_PORT=4000 BACKEND_PORT=5000 npx tsx scripts/agent-port-check.ts
 ./scripts/verify-and-start.sh
 
 # Portas personalizadas
-FRONTEND_PORT=3100 BACKEND_PORT=8788 ./scripts/verify-and-start.sh
+FRONTEND_PORT=3101 BACKEND_PORT=8788 ./scripts/verify-and-start.sh
 ```
 
 ---
@@ -302,13 +302,13 @@ FRONTEND_PORT=3100 BACKEND_PORT=8788 ./scripts/verify-and-start.sh
 
 **Sempre execute antes de gerar links:**
 
-1. `verifyAndGenerateLinks(3100, 8788)`
+1. `verifyAndGenerateLinks(3101, 8788)`
 2. Se `actions.generateLinks === true` → gere os links
 3. Se `false` → informe ao usuário as portas alternativas
 
 ```typescript
 // Exemplo de uso pelo agente
-const portCheck = await verifyAndGenerateLinks(3100, 8788);
+const portCheck = await verifyAndGenerateLinks(3101, 8788);
 
 if (!portCheck.actions.generateLinks) {
   // NOTIFY: Portas em uso, não gere links ainda
